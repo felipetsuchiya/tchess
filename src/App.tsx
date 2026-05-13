@@ -1,18 +1,13 @@
 import './App.css'
+import { Tabuleiro } from './components/Tabuleiro'
 
 function App() {
 
-  return (
-    <>
-      <section id="center">
-        <h1 className="text-3xl font-bold underline">
-          Hello world!
-        </h1>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+  return (
+    <div className='flex justify-center items-center bg-[#2D241E]'>
+      <Tabuleiro />
+    </ div>
   )
 }
 
