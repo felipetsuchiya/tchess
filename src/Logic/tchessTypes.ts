@@ -3,7 +3,7 @@ export type tabuleiroType = {
 }
 
 export type PecaType = 'peao' | 'torre' | 'cavalo' | 'bispo' | 'rainha' | 'rei'
-type PecaCor = 'branco' | 'preto' 
+export type PecaCor = 'branco' | 'preto' 
 
 export interface Peca {
     tipo: PecaType,

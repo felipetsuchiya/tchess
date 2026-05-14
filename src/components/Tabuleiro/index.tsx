@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import type { TabuleiroState } from '../../Logic/tchessTypes';
+import type { PecaCor, TabuleiroState } from '../../Logic/tchessTypes';
 
 import { inicialTabuleiro } from '../../Logic/tchessLogic';
 import { FaChessKing, FaChessQueen, FaChessBishop, FaChessKnight, FaChessRook, FaChessPawn } from 'react-icons/fa';
 
-// 1. Define o tipo da sua matriz (ex: uma matriz 3x3 de números)
 
 interface Posicao {
     linha: number;
@@ -14,10 +13,17 @@ interface Posicao {
 export const Tabuleiro: React.FC = () => {
 
     const [tabuleiro, setTabuleiro] = useState<TabuleiroState>(inicialTabuleiro());
-    const [ativo, setAtivo] = useState<boolean>(false);
-    const [itemSelecionado, setItemSelecionado] = useState<Posicao | null>(null);
+    const [pecaSelecionada, setpecaSelecionada] = useState<Posicao | null>(null);
+    const [currentTurn, setCurrentTurn] = useState<PecaCor>('branco');
+    const [actions, setActions] = useState(0);
 
-    const bordas = ['border-0', 'border-2 border-yellow-500']
+    const handleTurnChange = () => {
+        setCurrentTurn(prevTurn =>
+            prevTurn === 'preto' ? 'branco' : 'preto'
+        );
+        setActions(0); // Reseta ações do turno anterior
+        console.log(`Turno mudado para: ${currentTurn}`);
+    };
 
     //Mapeamento das peças 
     const pecaSimbolos = {
@@ -26,46 +32,75 @@ export const Tabuleiro: React.FC = () => {
     }
 
     function handleClick(linha: number, col: number) {
-        const valorClicado = tabuleiro[linha][col]
-        setItemSelecionado({ linha: linha, coluna: col })
-        alert(`Você clicou em: ${valorClicado} (Linha: ${linha}, Coluna: ${col})`)
+        const selectedLinha = linha
+        const selectedCol = col
+
+        if (pecaSelecionada) {
+            if (pecaSelecionada.linha === selectedLinha && pecaSelecionada.coluna === selectedCol) {
+                if (tabuleiro[linha][col] !== null) {
+                    setpecaSelecionada({ linha: linha, coluna: col })
+                }
+            } else {
+                const novoTabuleiro = tabuleiro.map((t) => [...t])
+                const valorMovimento = novoTabuleiro[pecaSelecionada.linha][pecaSelecionada.coluna]
+
+                novoTabuleiro[linha][col] = valorMovimento;
+                novoTabuleiro[pecaSelecionada.linha][pecaSelecionada.coluna] = null;
+
+                setTabuleiro(novoTabuleiro);
+                setpecaSelecionada(null);
+
+                setActions(prev => prev + 1);
+
+                if (actions < 1) {
+                    handleTurnChange();
+                }
+            }
+
+        } else {
+            if (tabuleiro[linha][col] !== null) {
+                setpecaSelecionada({ linha: linha, coluna: col })
+            }
+        }
     }
 
-
-
     return (
-        <div className='flex justify-center items-center h-screen bg-[#2D241E]'>
-            <div className='grid grid-cols-8 grid-rows-8 border-4 border-[#3E322A]'>
-                {tabuleiro.map((linha, linhaIndex) =>
-                    linha.map((peca, colIndex) => {
-                        const isDark = (linhaIndex + colIndex) % 2 === 1;
-                        const backgroundColor = isDark ? 'bg-[#4A5D4E]' : 'bg-[#E8D8C8]';
+        <div className='flex flex-col-reverse justify-center items-center'>
+            <div className='flex justify-center items-center h-1/2 bg-[#2D241E]'>
+                <div className='grid grid-cols-8 grid-rows-8 border-4 border-[#3E322A]'>
+                    {tabuleiro.map((linha, linhaIndex) =>
+                        linha.map((peca, colIndex) => {
+                            const isDark = (linhaIndex + colIndex) % 2 === 1;
+                            const backgroundColor = isDark ? 'bg-[#4A5D4E]' : 'bg-[#E8D8C8]';
 
-                        const isSelecionado =
-                            itemSelecionado?.linha === linhaIndex && itemSelecionado?.coluna === colIndex;
+                            const isSelecionado =
+                                pecaSelecionada?.linha === linhaIndex && pecaSelecionada?.coluna === colIndex;
 
-                        return (
-                            <div
-                                key={`${linhaIndex}-${colIndex}`}
-                                className={`${backgroundColor} p-1 flex justify-center items-center 
+                            return (
+                                <div
+                                    key={`${linhaIndex}-${colIndex}`}
+                                    className={`${backgroundColor} p-1 flex justify-center items-center 
                                             ${isSelecionado
-                                                ? 'bg-yellow-400 text-white font-bold scale-95 shadow-inner'
-                                                : '' 
+                                            ? 'bg-yellow-400 text-white font-bold scale-95 shadow-inner'
+                                            : ''
                                         }`}
-                                onClick={() => handleClick(linhaIndex, colIndex)}
-                            >
-                                {peca && (
-                                    <span>
-                                        {pecaSimbolos[peca.cor][peca.tipo]}
-                                    </span>
-                                )}
-                            </div>
-                        );
-                    })
-                )}
+                                    onClick={() => handleClick(linhaIndex, colIndex)}
+                                >
+                                    {peca && (
+                                        <span>
+                                            {pecaSimbolos[peca.cor][peca.tipo]}
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
             </div>
-        </div>
+            <div>
+                Turno: {currentTurn === 'branco' ? 'branco' : 'preto'}
+            </div>
+        </div >
     );
 };
-
 

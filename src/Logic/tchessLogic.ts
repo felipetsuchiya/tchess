@@ -17,4 +17,3 @@ export const inicialTabuleiro = (): TabuleiroState => {
 
     return tabuleiro
 }
-

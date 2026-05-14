@@ -1,4 +1,3 @@
-import './App.css'
 import { Tabuleiro } from './components/Tabuleiro'
 
 function App() {
